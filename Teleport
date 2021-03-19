@@ -1,0 +1,57 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+
+public class Teleport : MonoBehaviour
+{
+    public bool isInRange; // checks if player is in range of the collider
+    public KeyCode interactKey;  // Lets me pick the key to use for going through the door
+    public Transform teleportTarget; // where the player is teleporting to 
+    public GameObject thePlayer;
+    public Vector2 offset; // Allows the player to transform to an offset value of the travelled to game objects pivot point
+    public Animator aSceneTransition; //Defines the variable that will hold the reference for the animation used
+    public float transitionTime; //Defines the time taken to complete the animation
+
+    void Update()
+    {
+        if (isInRange) // If we're in range to interact
+        {
+            if (Input.GetKeyDown(interactKey)) // And player presses interact key
+            {
+                LoadNextDoor();     
+            }
+        }
+    }
+
+    public void LoadNextDoor()
+    {
+        //Executes a coroutine that calls the function LoadScene() using the the index of the referenced aUnity scene 
+        StartCoroutine(doorTransition());
+    }
+
+    private IEnumerator doorTransition()
+    {
+        //Plays the animation when the 'Start' condition is triggered
+        aSceneTransition.SetTrigger("Start");
+
+        //Doesn't begin the new animation until the transition time defined is over
+        yield return new WaitForSeconds(transitionTime);
+
+        thePlayer.transform.position = teleportTarget.transform.position + (Vector3)offset; // teleport the player    
+
+        yield return new WaitForSeconds(transitionTime); // doesn't end the transition to make sure the player has moved
+
+        aSceneTransition.SetTrigger("End"); // ends animation when the "End" condition is triggered
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+	{
+        isInRange = true;
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        isInRange = false;
+    }
+}
