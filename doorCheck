@@ -1,0 +1,28 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+
+public class doorCheck : MonoBehaviour
+{
+	public GameObject redCircle;
+	public GameObject yellowCircle;
+	public GameObject greenCircle;
+	public UnityEvent openDoor; // Creates the Unity Event Open Door
+
+	void Update()
+	{
+		if (redCircle.activeSelf == true) // If the red circle is active
+		{
+			if (yellowCircle.activeSelf == true) // And if the yellow circle is active
+			{
+				if (greenCircle.activeSelf == true) // And if the green circle is active
+				{
+					openDoor.Invoke(); // Fire Unity Event            
+				}
+				          
+			}
+		}
+	}
+
+}
