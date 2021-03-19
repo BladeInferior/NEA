@@ -1,0 +1,21 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[System.Serializable] // can be put into a binary file
+public class PlayerData
+{
+    public int scene;
+    public float health;
+    public float[] position; // array as I cannot serialize Unity variables such as Vector2 
+
+    public PlayerData(Player player)
+    {
+        // Sets the saved data of the player to the currently active data
+        scene = player.scene;  
+        health = player.GetComponent<Health>().health;
+        position = new float[2];
+        position[0] = player.transform.position.x;
+        position[1] = player.transform.position.y; 
+    }
+}
