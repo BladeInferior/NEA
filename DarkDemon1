@@ -1,0 +1,25 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class DarkDemon1 : Enemy
+{
+	protected override void Move()
+	{
+		base.Move();
+	}
+
+	protected override void FlipSprite()
+	{
+        if (target.position.x < transform.position.x)
+        {
+            transform.localScale = new Vector3(-1f, 1f, 1);  // change the x to flip the sprite
+            hpBar.transform.localScale = new Vector3(-2, 2, 0);  // prevent health bar and name from flipping
+        }
+        else if (target.position.x > transform.position.x)
+        {
+            transform.localScale = new Vector3(1f, 1f, 1);  // returns both values to original
+            hpBar.transform.localScale = new Vector3(2, 2, 0);
+        }
+    }
+}
