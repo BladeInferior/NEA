@@ -1,0 +1,47 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Elemental : Enemy
+{
+    public Transform firePoint;
+    public GameObject iceSpellPrefab;
+    public float attackDelay;
+
+
+    protected override void FlipSprite()
+    {
+        if (target.position.x < transform.position.x)
+        {
+            transform.localScale = new Vector3(-1f, 1f, 1);  // change the x to flip the sprite
+            hpBar.transform.localScale = new Vector3(-1, 1, 0);  // prevent health bar and name from flipping
+        }
+        else if (target.position.x > transform.position.x)
+        {
+            transform.localScale = new Vector3(1f, 1f, 1);  // returns both values to original
+            hpBar.transform.localScale = new Vector3(1, 1, 0);
+        }
+    }
+
+  
+
+    protected override void Attack()
+	{
+            Instantiate(iceSpellPrefab, firePoint.position, firePoint.rotation); // fires spell
+            attackDelay = 1f; // how long to wait between each attack
+    }
+
+    protected override void CheckRange()
+    {
+        base.CheckRange();  //  execute all code in original method
+        attackDelay -= Time.deltaTime;  // decrease time
+        if (attackDelay <= 0f)
+        {
+            anim.SetBool("attack", true);  // plays attack animation
+        }
+        else
+        {
+            anim.SetBool("attack", false); // stops attack animation and returns to run animation
+        }
+    }
+}
