@@ -1,0 +1,83 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using TMPro;
+
+public class DialogueSystem : MonoBehaviour
+{
+	public GameObject sceneLoader;
+	public GameObject dialogueBox;
+	private TMP_Text messageText;
+	private TextWriter.TextWriterSingle textWriterSingle;
+	private AudioSource talkingAudioSource;
+	private int counter = 0;
+	public bool sceneSwitch = false;
+	
+
+	public string[] messageArray = new string[]
+	{
+			 
+	};
+
+	private void Update()
+	{ 
+		  if (Input.GetKeyDown(KeyCode.T))
+		  {
+			NextWriter();
+		  }
+	}
+	
+	private void Awake()
+	{
+		 messageText = transform.Find("message").Find("messageText").GetComponent<TMP_Text>(); //Reference for text field
+		talkingAudioSource = transform.Find("talkingSound").GetComponent<AudioSource>(); // Reference for audio
+
+	}
+
+	public void NextWriter()
+	{
+		if (textWriterSingle != null && textWriterSingle.IsActive())  //Currently active TextWriter
+		{
+			textWriterSingle.WriteAllAndDestroy();
+		}
+		else
+		{
+			if (sceneSwitch) // if wanting to switch scene is true
+			{
+				if (counter == messageArray.Length)
+				{
+					sceneLoader.GetComponent<SceneLoader>().LoadNextScene();
+				}
+			}
+
+			if (sceneSwitch == false)
+			{
+				if (counter == messageArray.Length)
+				{
+					dialogueBox.SetActive(false);
+					counter = 0;
+				}
+			}
+
+			if (counter != messageArray.Length)
+			{
+				var message = messageArray[counter % messageArray.Length];
+				counter++;
+				StartTalkingSound();
+				textWriterSingle = TextWriter.AddWriter_Static(messageText, message, .03f, true, true, StopTalkingSound);
+			}
+		}
+	}
+
+	private void StartTalkingSound()
+	{
+		talkingAudioSource.Play();
+	}
+
+	private void StopTalkingSound()
+	{
+		talkingAudioSource.Stop();
+	}
+}
