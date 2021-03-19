@@ -1,0 +1,50 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class sceneChanging : MonoBehaviour
+{
+    public int sceneToLoad;
+	public Animator aSceneTransition; //Defines the variable that will hold the reference for the animation used
+	public float transitionTime = 3f; //Defines the time taken to complete the animation as 3 seconds
+	public float[,] scenes; // array as I cannot serialize Unity variables such as Vector2 
+	public int currentScene;
+	public GameObject thePlayer;
+
+	void Awake()
+	{
+		//DontDestroyOnLoad(this);
+		//scenes = new float[SceneManager.sceneCountInBuildSettings, 2];
+	}
+	
+
+	//private void OnTriggerEnter2D(Collider2D collision) // On entering the collider
+	//{
+	//	scenes[currentScene, 0] = thePlayer.transform.position.x; 
+	//	scenes[currentScene, 1] = thePlayer.transform.position.y;  
+	//	LoadNextScene();
+	//}
+
+	public void LoadNextScene()
+	{
+		//Executes a coroutine that calls the function LoadScene() using the the index of the referenced Unity scene 
+		StartCoroutine(sceneTransition(sceneToLoad));
+	}
+
+	private IEnumerator sceneTransition(int scene)
+	{
+		//Plays the animation when the 'Begin' condition is triggered
+		aSceneTransition.SetTrigger("Begin");
+
+		//Doesn't begin the new animation until the transition time defined is over
+		yield return new WaitForSeconds(transitionTime);
+
+		SceneManager.LoadScene(scene);
+
+		//thePlayer = FindObjectOfType<CharacterController2D>().gameObject; // finds the player
+
+		//var newPosition = new Vector3(scenes[currentScene, 0], scenes[currentScene, 1], thePlayer.transform.position.z);
+		//thePlayer.transform.position = newPosition; // sets the players position to the original saved one
+	}
+}
