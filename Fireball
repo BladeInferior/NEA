@@ -1,0 +1,47 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Fireball : MonoBehaviour
+{
+
+    public float speed = 20f;
+    public Rigidbody2D rb;
+    public int damage = 3;
+    private GameObject player;
+
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        player = GameObject.FindGameObjectWithTag("Player");
+
+        if (player.transform.localScale.x > 0.01f)
+		{
+            rb.velocity = transform.right * speed;  //  move right at speed rate
+        }
+		else if (player.transform.localScale.x < 0.01f)
+		{
+            rb.velocity = -transform.right * speed;  //  move left at speed rate
+        }
+        
+    }
+
+
+    public void OnTriggerEnter2D(Collider2D hitInfo)
+	{
+         Enemy enemy = hitInfo.GetComponent<Enemy>();
+        if (enemy != null)
+        {
+           enemy.TakeDamage(damage);
+            Destroy(gameObject);
+        }
+
+        if (hitInfo.gameObject.CompareTag("Wall"))
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    
+}
