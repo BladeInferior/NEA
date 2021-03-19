@@ -1,0 +1,36 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class SceneLoader : MonoBehaviour
+{
+
+    public Animator transition; //Defines the variable that will hold the reference for the animation used
+
+    public float transitionTime = 5f; //Defines the time taken to complete the animation as 5 seconds
+
+    public int sceneToLoad;
+
+    
+
+    public void LoadNextScene()
+	{
+        //Executes a coroutine that calls the function LoadScene() using the the index of the current Unity scene + 1
+        StartCoroutine(LoadScene(sceneToLoad)); 
+        
+	}
+
+    IEnumerator LoadScene(int sceneIndex ) 
+	{
+        //Plays the animation when the 'Begin' condition is triggered
+        transition.SetTrigger("Begin"); 
+
+        //Doesn't begin the new animation until the transition time defined is over
+        yield return new WaitForSeconds(transitionTime);
+
+        //Loads the scene with the build index value of the parameter sceneIndex
+        SceneManager.LoadScene(sceneIndex);
+	}
+
+}
