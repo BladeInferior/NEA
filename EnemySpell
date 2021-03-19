@@ -1,0 +1,44 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class EnemySpell : MonoBehaviour
+{
+    public float speed = 20f;
+    public Rigidbody2D rb;
+    public int damage = 5;
+    private GameObject enemy;
+
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        enemy = GameObject.FindGameObjectWithTag("Enemy");
+
+        if (enemy.transform.localScale.x > 0.01f)
+        {
+            rb.velocity = transform.right * speed;  //  move right at speed rate
+        }
+        else if (enemy.transform.localScale.x < 0.01f)
+        {
+            rb.velocity = -transform.right * speed;  //  move left at speed rate
+        }
+
+    }
+
+
+    public void OnTriggerEnter2D(Collider2D hitInfo)
+    {
+        Health health = hitInfo.GetComponent<Health>();
+        if (health != null)
+        {
+            health.Hit(damage);
+            Destroy(gameObject);
+        }
+
+        if (hitInfo.gameObject.CompareTag("Wall"))
+        {
+            Destroy(gameObject);
+        }
+    }
+}
