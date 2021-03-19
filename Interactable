@@ -1,0 +1,58 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
+
+public class Interactable : MonoBehaviour
+{
+    public bool isInRange;   
+    public KeyCode interactKey;  // Lets me pick the key to use for interaction
+    public UnityEvent interactAction; // Creates the Unity Event Interact Action
+
+    private SpriteRenderer interactMark;
+    
+
+    void Start()
+    {
+        interactMark = GameObject.FindGameObjectWithTag("Player").transform.Find("interactMark").GetComponent<SpriteRenderer>();
+        interactMark.enabled = false; // Sets the interaction exclamation mark to start as invisible
+    }
+
+
+    void Update()
+    {
+		if (isInRange) // If we're in range to interact
+		{
+			if (Input.GetKeyDown(interactKey)) // And player presses interact key
+			{               
+                interactAction.Invoke(); // Fire Unity Event  
+			}
+		}
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+	{
+		if (collision.gameObject.CompareTag("Player")) // If the player collides with the the current gameobject
+		{
+            isInRange = true;
+			NotifyPlayer();
+		}
+	}
+
+    private void OnTriggerExit2D(Collider2D collision)
+	{
+        isInRange = false;
+		DeNotifyPlayer();
+    }
+
+    public void NotifyPlayer()
+    {
+        interactMark.enabled = true; // Makes the interaction mark visible
+    }
+
+    public void DeNotifyPlayer()
+    {
+        interactMark.enabled = false; // Makes the interaction mark invisible
+    }
+}
