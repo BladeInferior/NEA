@@ -1,0 +1,39 @@
+using UnityEngine;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+
+public static class SaveSystem 
+{
+    public static void SavePlayer (Player player) // static so it can be called from anywhere without an instance
+	{
+		BinaryFormatter bf = new BinaryFormatter();
+		string path = Application.persistentDataPath + "/player.data";  // outlines a path for the saved data
+		FileStream stream = new FileStream(path, FileMode.Create); // creates the file for saved data
+
+		PlayerData data = new PlayerData(player);
+
+		bf.Serialize(stream, data); // serializes the code into binary
+		stream.Close(); // closes the file
+	}
+
+	public static PlayerData LoadPlayer()
+	{
+		string path = Application.persistentDataPath + "/player.data";
+		if (File.Exists(path)) 
+		{
+			BinaryFormatter bf = new BinaryFormatter();
+			FileStream stream = new FileStream(path, FileMode.Open); // Open existing file
+
+			PlayerData data = bf.Deserialize(stream) as PlayerData; // Deserialize the data and save it into the data class
+			stream.Close(); // closes the file
+
+			return data; // returns the class of saved data
+		}
+		else
+		{
+			Debug.LogError("Save file not found in" + path);
+				return null;
+		}
+	}
+
+}
