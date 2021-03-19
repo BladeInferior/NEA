@@ -1,0 +1,36 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class Player : MonoBehaviour
+{
+	// starting variables of the player
+	public int scene;
+	public float health; 
+
+	void Awake()
+	{
+		scene = SceneManager.GetActiveScene().buildIndex;
+	}
+
+	public void SavePlayer()
+	{
+		SaveSystem.SavePlayer(this); // calls the SavePlayer function from the SaveSystem script for this player
+	}
+
+	public void LoadPlayer()
+	{
+		PlayerData data = SaveSystem.LoadPlayer(); // calls the Loadplayer function from the SaveSystem script to put into a data class
+
+		// Sets the saved data of the player to the currently active data
+		scene = data.scene;
+		GetComponent<Health>().health = data.health;
+
+		Vector2 position;
+		position.x = data.position[0];
+		position.y = data.position[1];
+		// SceneManager.LoadScene(scene);
+		transform.position = position;
+	}
+}
