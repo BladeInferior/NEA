@@ -1,0 +1,138 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+public class TextWriter : MonoBehaviour
+{
+	private static TextWriter instance;
+	private List<TextWriterSingle> textWriterSingleList;  // allow for multiple text writers
+
+	private void Awake()
+	{
+		instance = this;
+		textWriterSingleList = new List<TextWriterSingle>(); // initialise list
+	}
+
+	public static TextWriterSingle AddWriter_Static(TMP_Text uiText, string textToWrite, float timePerCharacter, bool invisibleCharacters, bool removeWriterBeforeAdd, Action onComplete)
+	{
+		if (removeWriterBeforeAdd) // checks for existing textwriter instance
+		{
+			instance.RemoveWriter(uiText); 
+		}
+		return instance.AddWriter(uiText, textToWrite, timePerCharacter, invisibleCharacters, onComplete);
+	}
+
+	private TextWriterSingle AddWriter(TMP_Text uiText, string textToWrite, float timePerCharacter, bool invisibleCharacters, Action onComplete)
+	{
+		TextWriterSingle textWriterSingle = new TextWriterSingle(uiText, textToWrite, timePerCharacter, invisibleCharacters, onComplete); // new instance
+		textWriterSingleList.Add(textWriterSingle);  // add to current list
+		return textWriterSingle;
+	}
+
+	public static void RemoveWriter_Static(TMP_Text uiText)
+	{ 
+		instance.RemoveWriter(uiText);
+	}
+	private void RemoveWriter(TMP_Text uiText)  // remove before new one starts
+	{
+		for (int i = 0; i < textWriterSingleList.Count; i++) 
+		{
+			if (textWriterSingleList[i].GetUIText() == uiText) 
+			{
+				textWriterSingleList.RemoveAt(i);
+				i--;
+			}
+		}
+	}
+
+	private void Update()
+	{
+		for (int i = 0; i < textWriterSingleList.Count; i++) // cycle through the list
+		{
+			bool destroyInstance = textWriterSingleList[i].Update();
+			if (destroyInstance)
+			{
+				textWriterSingleList.RemoveAt(i);  // removes instance that is finished from list
+				i--;  // stop skipping of an index
+			}
+		} 
+	}
+
+
+
+	/* 
+	 * Represents a single Textwriter instance
+	 * */
+	public class TextWriterSingle 
+	{
+		private TMP_Text uiText;  // where to write
+		private string textToWrite;  // string to write
+		private int characterIndex;  // what character that is currently being written
+		private float timePerCharacter; //  how fast characters are written
+		private float timer;
+		private bool invisibleCharacters; // to stop text from moving
+		private Action onComplete; // if talking should be stopped
+
+		public TextWriterSingle(TMP_Text uiText, string textToWrite, float timePerCharacter, bool invisibleCharacters, Action onComplete)
+		{
+			this.uiText = uiText;
+			this.textToWrite = textToWrite;
+			this.timePerCharacter = timePerCharacter;
+			this.invisibleCharacters = invisibleCharacters;
+			this.onComplete = onComplete;
+			characterIndex = 0;
+
+
+		}
+
+		// Returns true on complete
+		public bool Update()
+		{
+			timer -= Time.deltaTime;
+			while (timer <= 0f) // whilst in same frame print as many characters as timer allows
+			{
+				//Display next character
+				timer += timePerCharacter;  // reset
+				characterIndex++;  // write next character
+				string text = textToWrite.Substring(0, characterIndex); // substring of all characters to form text
+				if (invisibleCharacters)
+				{
+					text += "<color=#00000000>" + textToWrite.Substring(characterIndex) + "</color>";  // makes unwritten characters invisible
+				}
+				uiText.text = text;
+
+				if (characterIndex >= textToWrite.Length)
+				{
+					//If entire string is already displayed
+					if (onComplete != null) onComplete(); // doesn't run again
+					return true;
+				}
+			}
+
+			return false;  // won't run unless complete
+
+		}
+
+		public TMP_Text GetUIText()
+		{
+			return uiText;
+		}
+
+		public bool IsActive()
+		{
+			return characterIndex < textToWrite.Length;  // if still writing
+		}
+
+		public void WriteAllAndDestroy()  // finish writing and destroy it
+		{
+			uiText.text = textToWrite;
+			characterIndex = textToWrite.Length;
+			if (onComplete != null) onComplete();
+			TextWriter.RemoveWriter_Static(uiText);
+		}
+
+	}
+}
