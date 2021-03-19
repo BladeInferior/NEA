@@ -1,0 +1,56 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class Health : MonoBehaviour
+{
+    public float maxHealth;
+    public float health;
+    public Animator anim;
+
+    public Image hpImage;
+    public Image hpEffectImage;
+
+    void Start()
+    {
+        health = maxHealth; // start with full health
+    }
+
+    void Update()
+	{
+        DisplayHPBar();
+
+        if (health <= 0)
+        {
+            health = 0; // so there is no negative health
+            Die();
+        }
+    }
+
+    // for being attacked
+    public void Hit(int amount)
+    {
+        anim.SetTrigger("Hurt");
+        health -= amount;  // damage our health var by the amount we were hit by
+    }
+
+    public void Die()
+    {
+        anim.SetTrigger("Die");
+    }
+
+    public void DisplayHPBar()
+    {
+        hpImage.fillAmount = health / maxHealth;
+
+        if (hpEffectImage.fillAmount > hpImage.fillAmount)
+        {
+            hpEffectImage.fillAmount -= 0.002f; // show health decrease
+        }
+        else
+        {
+            hpEffectImage.fillAmount = hpImage.fillAmount;
+        }
+    }
+}
