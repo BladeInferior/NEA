@@ -1,0 +1,133 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class Enemy : MonoBehaviour
+{
+    [SerializeField] private float moveSpeed;
+    private float healthPoint;
+    [SerializeField] protected private float maxHealthPoint;
+    protected private Transform target; // the player
+    protected private Health playerHealth;
+    [SerializeField] protected private float dRange;
+    [SerializeField] protected private Animator anim;
+    [SerializeField]  protected private float aRange = 2.4f;
+    private bool isDead;
+    [SerializeField] private int damage;
+    public Image hpImage;
+    public Image hpEffectImage;
+    private int pDamage;
+    private GameObject player;
+    public GameObject hpBar;
+
+    private void Start()
+	{
+        healthPoint = maxHealthPoint; // starts enemy with full health
+        player = GameObject.FindGameObjectWithTag("Player");
+        target = player.GetComponent<Transform>();
+        playerHealth = player.GetComponent<Health>();
+        PlayerCombat playerCombat = player.GetComponent<PlayerCombat>();
+        pDamage = playerCombat.damage;
+    }
+
+    private void Update()
+    {
+        CheckRange();
+        FlipSprite();
+        DisplayHPBar();
+    }
+
+    private void FixedUpdate()
+	{
+      Move(); 
+	}
+
+    protected virtual void Move() // protected and virtual so it can be overridden in child class
+	{
+        if (Vector2.Distance(transform.position, target.position) < dRange && Vector2.Distance(transform.position, target.position) > aRange)  //  if player is out of range of the enemy
+        {
+            
+            anim.SetBool("dRange", true);  // plays running animation
+            transform.position = (Vector2.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime));  // move enemy towards player
+        }
+
+        else  //  if player is out of range of the enemy
+        {
+            anim.SetBool("dRange", false); // plays idle animation
+        }
+    }
+
+    public void TakeDamage(int damage)
+	{
+        healthPoint -= damage;
+        if (healthPoint <= 0)
+        {
+            Death();
+        }
+
+        dRange = 100;
+
+    }
+
+    protected virtual void CheckRange()  //  checks if the player is in range to be attacked by the enemy
+	{
+        if (Vector2.Distance(transform.position, target.position) <= aRange)
+		{
+            anim.SetBool("aRange", true);  // plays attack animation
+        }
+
+        if (Vector2.Distance(transform.position, target.position) > aRange)
+        {
+            anim.SetBool("aRange", false); // stops attack animation and returns to run animation
+        }
+    }
+
+    protected virtual void FlipSprite()  //  flips the sprite towrds the player
+	{
+        
+            if (target.position.x < transform.position.x)
+            {
+                  transform.localScale = new Vector3(-0.5f, 0.5f, 1);  // change the x to flip the sprite
+                  hpBar.transform.localScale = new Vector3(-2, 2, 0);  // prevent health bar and name from flipping
+            }
+            else if (target.position.x > transform.position.x)
+            {
+                transform.localScale = new Vector3(0.5f, 0.5f, 1);  // returns both values to original
+                hpBar.transform.localScale = new Vector3(2, 2, 0);
+            }
+        
+    }
+
+    protected virtual void Attack()
+	{
+        playerHealth.Hit(damage);  // access the player health script and run the hit function
+    }
+
+
+    protected virtual void Death()
+	{
+		if (!isDead)
+		{
+            moveSpeed = 0;
+            anim.SetTrigger("Death");  //  play death animation
+            isDead = true;  // prevent any looping
+        }
+        Destroy(gameObject, 1);
+    }
+
+    protected virtual void DisplayHPBar()
+	{
+        hpImage.fillAmount = healthPoint / maxHealthPoint;
+
+		if (hpEffectImage.fillAmount > hpImage.fillAmount)
+		{
+            hpEffectImage.fillAmount -= 0.002f; // show health decrease
+		}
+		else
+		{
+            hpEffectImage.fillAmount = hpImage.fillAmount;
+		}
+	}
+
+}
