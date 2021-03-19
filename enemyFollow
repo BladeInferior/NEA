@@ -1,0 +1,36 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class enemyFollow : MonoBehaviour
+{
+    public float speed;
+    private float range = 15f;
+    private Transform target;
+    private float[] startingPos;
+
+    void Start()
+	{
+        target = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>(); // players position
+        startingPos = new float[2];  // to store original position of the enemy
+        startingPos[0] = transform.position.x; 
+        startingPos[1] = transform.position.y;
+    }
+
+
+    void Update()
+    {
+        if (Vector2.Distance(transform.position, target.position) <= range)  // if player is in range of the enemy
+        {
+            transform.position = (Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime));
+
+        }       
+        if (Vector2.Distance(transform.position, target.position) > range)  //  if player is out of range of the enemy
+        {
+            Vector2 temp;
+            temp.x = startingPos[0];
+            temp.y = startingPos[1];
+            transform.position = (Vector2.MoveTowards(transform.position, temp, speed * Time.deltaTime));  //  return to original position
+        }     
+    }
+}
