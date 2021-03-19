@@ -1,0 +1,32 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class helpText : MonoBehaviour
+{
+    public GameObject canvas;
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player")) // If the player collides with the the current gameobject
+        {
+            startInstruction();
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        stopInstruction();
+    }
+
+    public void startInstruction()
+    {
+        canvas.SetActive(true);
+    }
+
+    public void stopInstruction()
+    {
+        canvas.SetActive(false);
+    }
+
+}
